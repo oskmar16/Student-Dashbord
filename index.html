@@ -8,7 +8,11 @@
 </head>
 <body>
   <aside class="sidebar">
-    <div class="brand">🎓 Studieportal</div>
+    <div class="brand"><span class="brand-mark">H</span><span>HVL<span class="brand-sub">/ STUDIEFLYT</span></span></div>
+    <div class="profile-card">
+      <span class="profile-avatar">ØA</span>
+      <div><strong>Siviløkonom</strong><small>HVL Haugesund</small></div>
+    </div>
     <nav>
       <button class="nav-btn active" data-view="dashboard">🏠 Oversikt</button>
       <button class="nav-btn" data-view="schedule">📅 Timeplan</button>
@@ -21,7 +25,7 @@
   <main class="main">
     <header class="topbar">
       <div>
-        <p class="eyebrow">Høstsemester 2026</p>
+        <p class="eyebrow">Høstsemester 2026 <span class="live-dot"></span></p>
         <h1 id="page-title">Oversikt</h1>
       </div>
       <div id="today" class="today"></div>
@@ -30,11 +34,20 @@
     <section id="dashboard" class="view active">
       <div class="hero card">
         <div>
+          <p class="eyebrow">Din studieuke</p>
+          <h2>Hold oversikten. Ta ett steg om gangen.</h2>
+          <p class="muted hero-copy">Alt du trenger for masteren i økonomi og administrasjon, samlet på ett sted.</p>
+          <div class="quick-actions">
+            <button class="primary" data-open-type="deadline">+ Ny oppgave</button>
+            <button class="secondary" data-view-jump="subjects">Se fagene</button>
+          </div>
+        </div>
+        <div class="next-event">
           <p class="eyebrow">Neste viktige hendelse</p>
           <h2 id="next-title">–</h2>
           <p id="next-meta" class="muted"></p>
+          <div id="next-countdown" class="countdown"></div>
         </div>
-        <div id="next-countdown" class="countdown"></div>
       </div>
 
       <div class="grid-3">
@@ -52,6 +65,11 @@
           <p class="eyebrow">Fag</p>
           <h3 id="subject-count">0 fag</h3>
           <p class="muted">Aktive dette semesteret</p>
+        </div>
+        <div class="card progress-card">
+          <div class="progress-heading"><p class="eyebrow">Fremdrift</p><strong id="progress-label">0%</strong></div>
+          <div class="progress-track"><span id="progress-bar"></span></div>
+          <p class="muted" id="progress-copy">Ingen oppgaver registrert</p>
         </div>
       </div>
 
@@ -89,7 +107,13 @@
           </div>
           <button class="primary" id="add-class-btn">+ Ny undervisning</button>
         </div>
-        <div id="schedule-list" class="event-list"></div>
+        <div class="schedule-toolbar">
+          <button class="secondary schedule-nav" id="previous-week" aria-label="Forrige uke">←</button>
+          <button class="secondary" id="current-week">Denne uken</button>
+          <strong id="schedule-week-label"></strong>
+          <button class="secondary schedule-nav" id="next-week" aria-label="Neste uke">→</button>
+        </div>
+        <div id="schedule-grid" class="schedule-grid"></div>
       </div>
     </section>
 

@@ -1,3 +1,25 @@
+const DEFAULT_CLASSES = [
+  ["2026-08-18T10:15","msb102"],["2026-08-20T12:15","msb102"],["2026-08-21T10:15","msb102"],["2026-08-25T10:15","msb102"],["2026-08-27T12:15","msb102"],["2026-08-28T10:15","msb102"],
+  ["2026-09-01T10:15","msb102"],["2026-09-02T10:15","msb104"],["2026-09-03T12:15","msb102"],["2026-09-03T14:15","msb104"],["2026-09-04T10:15","msb102"],["2026-09-04T12:15","msb104"],
+  ["2026-09-08T10:15","msb102"],["2026-09-09T10:15","msb104"],["2026-09-10T12:15","msb102"],["2026-09-10T14:15","msb104"],["2026-09-11T08:15","msb102"],["2026-09-11T12:15","msb104"],
+  ["2026-09-15T10:15","msb102"],["2026-09-16T10:15","msb104"],["2026-09-17T12:15","msb102"],["2026-09-17T14:15","msb104"],["2026-09-18T10:15","msb102"],["2026-09-18T12:15","msb104"],
+  ["2026-09-22T10:15","msb102"],["2026-09-24T10:15","msb104"],["2026-09-24T12:15","msb102"],["2026-09-24T14:15","msb104"],["2026-09-25T10:15","msb102"],["2026-09-25T12:15","msb104"],["2026-09-29T10:15","msb102"],
+  ["2026-10-01T10:15","msb104"],["2026-10-01T12:15","msb102"],["2026-10-01T14:15","msb104"],["2026-10-02T08:15","msb102"],["2026-10-02T12:15","msb104"],
+  ["2026-10-13T10:15","msb102"],["2026-10-14T10:15","msb104"],["2026-10-15T12:15","msb104"],["2026-10-16T10:15","msb102"],["2026-10-16T12:15","msb104"],
+  ["2026-10-20T10:15","msb102"],["2026-10-21T10:15","msb104"],["2026-10-22T12:15","msb104"],["2026-10-23T10:15","msb102"],["2026-10-23T12:15","msb104"],
+  ["2026-10-27T10:15","msb102"],["2026-10-29T10:15","msb104"],["2026-10-30T10:15","msb102"],["2026-10-30T12:15","msb104"],
+  ["2026-11-03T10:15","msb102"],["2026-11-04T10:15","msb104"],["2026-11-05T12:15","msb104"],["2026-11-06T10:15","msb102"],["2026-11-06T12:15","msb104"],
+  ["2026-11-10T10:15","msb102"],["2026-11-12T10:15","msb104"],["2026-11-12T12:15","msb104"],["2026-11-13T10:15","msb102"],["2026-11-13T12:15","msb104"]
+].map(([date,subject])=>({
+  id:`class-${date}-${subject}`,
+  type:"class",
+  title:"Undervisning",
+  subject,
+  date,
+  location:"",
+  done:false
+}));
+
 const DEFAULT_DATA = {
   subjects: [
     { id: "msb102", code: "MSB102", name: "Innovasjonsteori og praksis" },
@@ -10,12 +32,20 @@ const DEFAULT_DATA = {
     { id: crypto.randomUUID(), type: "deadline", title: "Essay", subject: "msb102", date: "2026-11-10T23:59", done: false },
     { id: crypto.randomUUID(), type: "deadline", title: "Oppgave", subject: "msb102", date: "2026-11-14T14:00", done: false },
     { id: crypto.randomUUID(), type: "exam", title: "Skoleeksamen – 5 timer", subject: "msb102", date: "2026-12-08T09:00", done: false },
-    { id: crypto.randomUUID(), type: "exam", title: "Eksamen – 4 timer", subject: "msb104", date: "2026-12-11T09:00", done: false }
+    { id: crypto.randomUUID(), type: "exam", title: "Eksamen – 4 timer", subject: "msb104", date: "2026-12-11T09:00", done: false },
+    ...DEFAULT_CLASSES
   ]
 };
 
 const saved = localStorage.getItem("studieportal-data");
 let data = saved ? JSON.parse(saved) : DEFAULT_DATA;
+const knownIds = new Set(data.items.map(item=>item.id));
+const missingClasses = DEFAULT_CLASSES.filter(item=>!knownIds.has(item.id));
+if(missingClasses.length){
+  data.items.push(...missingClasses);
+  localStorage.setItem("studieportal-data", JSON.stringify(data));
+}
+let visibleWeek = getWeekStart(new Date());
 
 function persist(){ localStorage.setItem("studieportal-data", JSON.stringify(data)); }
 function subjectById(id){ return data.subjects.find(s => s.id === id) || {code:"",name:"Ukjent fag"}; }
@@ -41,6 +71,41 @@ function upcoming(type){
   return data.items.filter(i => (!type || i.type===type) && toDate(i.date)>=new Date() && !i.done).sort((a,b)=>toDate(a.date)-toDate(b.date));
 }
 
+function getWeekStart(value){
+  const date = new Date(value);
+  const day = date.getDay() || 7;
+  date.setHours(0,0,0,0);
+  date.setDate(date.getDate() - day + 1);
+  return date;
+}
+
+function renderSchedule(schedules){
+  const days = ["Mandag","Tirsdag","Onsdag","Torsdag","Fredag"];
+  const weekEnd = new Date(visibleWeek);
+  weekEnd.setDate(weekEnd.getDate() + 6);
+  document.getElementById("schedule-week-label").textContent =
+    `${visibleWeek.toLocaleDateString("nb-NO",{day:"numeric",month:"short"})} – ${weekEnd.toLocaleDateString("nb-NO",{day:"numeric",month:"short",year:"numeric"})}`;
+
+  document.getElementById("schedule-grid").innerHTML = days.map((name,index)=>{
+    const date = new Date(visibleWeek);
+    date.setDate(date.getDate() + index);
+    const nextDate = new Date(date);
+    nextDate.setDate(nextDate.getDate() + 1);
+    const lessons = schedules.filter(item=>toDate(item.date)>=date && toDate(item.date)<nextDate);
+    const isToday = date.toDateString() === new Date().toDateString();
+    return `<div class="schedule-day ${isToday ? "is-today" : ""}">
+      <div class="schedule-day-head"><span>${name}</span><strong>${date.getDate()}</strong></div>
+      <div class="schedule-lessons">
+        ${lessons.length ? lessons.map(item=>{
+          const subject=subjectById(item.subject);
+          const time=toDate(item.date).toLocaleTimeString("nb-NO",{hour:"2-digit",minute:"2-digit"});
+          return `<article class="schedule-lesson"><time>${time}</time><strong>${item.title}</strong><span>${subject.code}${item.location ? ` · ${item.location}` : ""}</span></article>`;
+        }).join("") : `<span class="schedule-empty">Ingen undervisning</span>`}
+      </div>
+    </div>`;
+  }).join("");
+}
+
 function renderEvent(item, showStatus=false){
   const s = subjectById(item.subject);
   const d = toDate(item.date);
@@ -62,6 +127,14 @@ function renderEvent(item, showStatus=false){
 function render(){
   document.getElementById("today").textContent = new Date().toLocaleDateString("nb-NO",{weekday:"long",day:"numeric",month:"long"});
   document.getElementById("subject-count").textContent = `${data.subjects.length} fag`;
+  const trackedItems = data.items.filter(i=>i.type==="deadline");
+  const completedItems = trackedItems.filter(i=>i.done).length;
+  const progress = trackedItems.length ? Math.round((completedItems / trackedItems.length) * 100) : 0;
+  document.getElementById("progress-label").textContent = `${progress}%`;
+  document.getElementById("progress-bar").style.width = `${progress}%`;
+  document.getElementById("progress-copy").textContent = trackedItems.length
+    ? `${completedItems} av ${trackedItems.length} oppgaver ferdig`
+    : "Legg til en oppgave for å starte";
 
   const allUpcoming = upcoming();
   const next = allUpcoming[0];
@@ -81,7 +154,7 @@ function render(){
   document.getElementById("upcoming-list").innerHTML = up.length ? up.map(i=>renderEvent(i)).join("") : `<div class="empty">Ingen kommende frister.</div>`;
 
   const schedules = data.items.filter(i=>i.type==="class").sort((a,b)=>toDate(a.date)-toDate(b.date));
-  document.getElementById("schedule-list").innerHTML = schedules.length ? schedules.map(i=>renderEvent(i,true)).join("") : `<div class="empty">Timeplanen er klar for undervisningsdata. Trykk «+ Ny undervisning» for å legge inn timer.</div>`;
+  renderSchedule(schedules);
 
   const now = new Date();
   const weekEnd = new Date(now); weekEnd.setDate(now.getDate()+7);
@@ -114,6 +187,7 @@ window.toggleDone=toggleDone;
 
 document.querySelectorAll(".nav-btn").forEach(btn=>btn.addEventListener("click",()=>switchView(btn.dataset.view)));
 document.querySelectorAll("[data-view-jump]").forEach(btn=>btn.addEventListener("click",()=>switchView(btn.dataset.viewJump)));
+document.querySelectorAll("[data-open-type]").forEach(btn=>btn.addEventListener("click",()=>openItemDialog(btn.dataset.openType)));
 
 function switchView(id){
   document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));
@@ -144,6 +218,9 @@ function openItemDialog(type){
   itemDialog.showModal();
 }
 document.getElementById("add-class-btn").onclick=()=>openItemDialog("class");
+document.getElementById("previous-week").onclick=()=>{visibleWeek.setDate(visibleWeek.getDate()-7);render();};
+document.getElementById("next-week").onclick=()=>{visibleWeek.setDate(visibleWeek.getDate()+7);render();};
+document.getElementById("current-week").onclick=()=>{visibleWeek=getWeekStart(new Date());render();};
 document.getElementById("add-deadline-btn").onclick=()=>openItemDialog("deadline");
 document.getElementById("add-exam-btn").onclick=()=>openItemDialog("exam");
 
