@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="no">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Min Studieportal</title>
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <aside class="sidebar">
+    <div class="brand">🎓 Studieportal</div>
+    <nav>
+      <button class="nav-btn active" data-view="dashboard">🏠 Oversikt</button>
+      <button class="nav-btn" data-view="schedule">📅 Timeplan</button>
+      <button class="nav-btn" data-view="subjects">📚 Fag</button>
+      <button class="nav-btn" data-view="deadlines">✅ Innleveringer</button>
+      <button class="nav-btn" data-view="exams">🎓 Eksamen</button>
+    </nav>
+  </aside>
+
+  <main class="main">
+    <header class="topbar">
+      <div>
+        <p class="eyebrow">Høstsemester 2026</p>
+        <h1 id="page-title">Oversikt</h1>
+      </div>
+      <div id="today" class="today"></div>
+    </header>
+
+    <section id="dashboard" class="view active">
+      <div class="hero card">
+        <div>
+          <p class="eyebrow">Neste viktige hendelse</p>
+          <h2 id="next-title">–</h2>
+          <p id="next-meta" class="muted"></p>
+        </div>
+        <div id="next-countdown" class="countdown"></div>
+      </div>
+
+      <div class="grid-3">
+        <div class="card">
+          <p class="eyebrow">Neste innlevering</p>
+          <h3 id="next-deadline">–</h3>
+          <p id="next-deadline-date" class="muted"></p>
+        </div>
+        <div class="card">
+          <p class="eyebrow">Neste eksamen</p>
+          <h3 id="next-exam">–</h3>
+          <p id="next-exam-date" class="muted"></p>
+        </div>
+        <div class="card">
+          <p class="eyebrow">Fag</p>
+          <h3 id="subject-count">0 fag</h3>
+          <p class="muted">Aktive dette semesteret</p>
+        </div>
+      </div>
+
+      <div class="grid-2">
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Kommende</p>
+              <h2>Frister og vurderinger</h2>
+            </div>
+            <button class="secondary" data-view-jump="deadlines">Se alle</button>
+          </div>
+          <div id="upcoming-list" class="event-list"></div>
+        </div>
+
+        <div class="card">
+          <div class="card-head">
+            <div>
+              <p class="eyebrow">Denne uken</p>
+              <h2>Timeplan</h2>
+            </div>
+            <button class="secondary" data-view-jump="schedule">Åpne timeplan</button>
+          </div>
+          <div id="week-list" class="event-list"></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="schedule" class="view">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Undervisning</p>
+            <h2>Timeplan</h2>
+          </div>
+          <button class="primary" id="add-class-btn">+ Ny undervisning</button>
+        </div>
+        <div id="schedule-list" class="event-list"></div>
+      </div>
+    </section>
+
+    <section id="subjects" class="view">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Semester</p>
+            <h2>Fag</h2>
+          </div>
+          <button class="primary" id="add-subject-btn">+ Nytt fag</button>
+        </div>
+        <div id="subject-grid" class="subject-grid"></div>
+      </div>
+    </section>
+
+    <section id="deadlines" class="view">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Arbeidskrav og innleveringer</p>
+            <h2>Frister</h2>
+          </div>
+          <button class="primary" id="add-deadline-btn">+ Ny frist</button>
+        </div>
+        <div id="deadline-list" class="event-list"></div>
+      </div>
+    </section>
+
+    <section id="exams" class="view">
+      <div class="card">
+        <div class="card-head">
+          <div>
+            <p class="eyebrow">Vurdering</p>
+            <h2>Eksamener</h2>
+          </div>
+          <button class="primary" id="add-exam-btn">+ Ny eksamen</button>
+        </div>
+        <div id="exam-list" class="event-list"></div>
+      </div>
+    </section>
+  </main>
+
+  <dialog id="item-dialog">
+    <form method="dialog" id="item-form">
+      <h2 id="dialog-title">Legg til</h2>
+      <input type="hidden" id="item-type" />
+      <label>Tittel
+        <input id="item-title" required placeholder="F.eks. Presentasjon" />
+      </label>
+      <label>Fag
+        <select id="item-subject"></select>
+      </label>
+      <label>Dato og tid
+        <input id="item-date" type="datetime-local" required />
+      </label>
+      <label id="location-wrap">Rom / sted
+        <input id="item-location" placeholder="F.eks. C201" />
+      </label>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary">Avbryt</button>
+        <button value="default" class="primary" id="save-item">Lagre</button>
+      </div>
+    </form>
+  </dialog>
+
+  <dialog id="subject-dialog">
+    <form method="dialog" id="subject-form">
+      <h2>Nytt fag</h2>
+      <label>Fagkode
+        <input id="subject-code" required placeholder="F.eks. MSB104" />
+      </label>
+      <label>Fagnavn
+        <input id="subject-name" required placeholder="F.eks. Økonometri" />
+      </label>
+      <div class="dialog-actions">
+        <button value="cancel" class="secondary">Avbryt</button>
+        <button value="default" class="primary" id="save-subject">Lagre</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js"></script>
+</body>
+</html>
