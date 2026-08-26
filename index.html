@@ -1,201 +1,44 @@
 <!DOCTYPE html>
 <html lang="no">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Min Studieportal</title>
-  <link rel="stylesheet" href="styles.css" />
+  <meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0"><meta name="theme-color" content="#173c3a"><meta name="apple-mobile-web-app-capable" content="yes"><meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+  <title>Min hverdag</title><link rel="manifest" href="manifest.webmanifest"><link rel="apple-touch-icon" href="icons/icon-192.png"><link rel="stylesheet" href="styles.css?v=20260826-3">
 </head>
 <body>
   <aside class="sidebar">
-    <div class="brand"><span class="brand-mark">H</span><span>HVL<span class="brand-sub">/ STUDIEFLYT</span></span></div>
-    <div class="profile-card">
-      <span class="profile-avatar">ØA</span>
-      <div><strong>Siviløkonom</strong><small>HVL Haugesund</small></div>
-    </div>
-    <nav>
-      <button class="nav-btn active" data-view="dashboard">🏠 Oversikt</button>
-      <button class="nav-btn" data-view="schedule">📅 Timeplan</button>
-      <button class="nav-btn" data-view="subjects">📚 Fag</button>
-      <button class="nav-btn" data-view="deadlines">✅ Innleveringer</button>
-      <button class="nav-btn" data-view="exams">🎓 Eksamen</button>
+    <div class="brand"><span class="brand-mark">M</span><span>Min hverdag<small>PERSONLIG DASHBOARD</small></span></div>
+    <nav aria-label="Hovedmeny">
+      <button class="nav-btn active" data-view="dashboard"><span>⌂</span><b>Oversikt</b></button><button class="nav-btn" data-view="calendar"><span>▦</span><b>Kalender</b></button><button class="nav-btn" data-view="todos"><span>✓</span><b>Gjøremål</b></button><button class="nav-btn" data-view="study"><span>▤</span><b>Studie</b></button><button class="nav-btn" data-view="work"><span>▣</span><b>Jobb</b></button><button class="nav-btn" data-view="training"><span>◆</span><b>Trening</b></button><button class="nav-btn" data-view="events"><span>○</span><b>Arrangementer</b></button>
     </nav>
+    <div class="sidebar-footer"><button class="nav-btn" id="install-app-btn" hidden><span>↓</span><b>Installer app</b></button><button class="nav-btn" id="settings-btn"><span>⚙</span><b>Innstillinger</b></button><p id="storage-status">Data lagres trygt lokalt</p></div>
   </aside>
-
   <main class="main">
-    <header class="topbar">
-      <div>
-        <p class="eyebrow">Høstsemester 2026 <span class="live-dot"></span></p>
-        <h1 id="page-title">Oversikt</h1>
-      </div>
-      <div id="today" class="today"></div>
-    </header>
+    <header class="topbar"><div><p class="eyebrow" id="header-kicker">DIN DAG</p><h1 id="page-title">Oversikt</h1></div><div id="today" class="today"></div></header>
 
     <section id="dashboard" class="view active">
-      <div class="hero card">
-        <div>
-          <p class="eyebrow">Din studieuke</p>
-          <h2>Hold oversikten. Ta ett steg om gangen.</h2>
-          <p class="muted hero-copy">Alt du trenger for masteren i økonomi og administrasjon, samlet på ett sted.</p>
-          <div class="quick-actions">
-            <button class="primary" data-open-type="deadline">+ Ny oppgave</button>
-            <button class="secondary" data-view-jump="subjects">Se fagene</button>
-          </div>
-        </div>
-        <div class="next-event">
-          <p class="eyebrow">Neste viktige hendelse</p>
-          <h2 id="next-title">–</h2>
-          <p id="next-meta" class="muted"></p>
-          <div id="next-countdown" class="countdown"></div>
-        </div>
-      </div>
-
-      <div class="grid-3">
-        <div class="card">
-          <p class="eyebrow">Neste innlevering</p>
-          <h3 id="next-deadline">–</h3>
-          <p id="next-deadline-date" class="muted"></p>
-        </div>
-        <div class="card">
-          <p class="eyebrow">Neste eksamen</p>
-          <h3 id="next-exam">–</h3>
-          <p id="next-exam-date" class="muted"></p>
-        </div>
-        <div class="card">
-          <p class="eyebrow">Fag</p>
-          <h3 id="subject-count">0 fag</h3>
-          <p class="muted">Aktive dette semesteret</p>
-        </div>
-        <div class="card progress-card">
-          <div class="progress-heading"><p class="eyebrow">Fremdrift</p><strong id="progress-label">0%</strong></div>
-          <div class="progress-track"><span id="progress-bar"></span></div>
-          <p class="muted" id="progress-copy">Ingen oppgaver registrert</p>
-        </div>
-      </div>
-
-      <div class="grid-2">
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <p class="eyebrow">Kommende</p>
-              <h2>Frister og vurderinger</h2>
-            </div>
-            <button class="secondary" data-view-jump="deadlines">Se alle</button>
-          </div>
-          <div id="upcoming-list" class="event-list"></div>
-        </div>
-
-        <div class="card">
-          <div class="card-head">
-            <div>
-              <p class="eyebrow">Denne uken</p>
-              <h2>Timeplan</h2>
-            </div>
-            <button class="secondary" data-view-jump="schedule">Åpne timeplan</button>
-          </div>
-          <div id="week-list" class="event-list"></div>
-        </div>
+      <div class="hero card"><div><p class="eyebrow">God morgen</p><h2 id="greeting-title">Få oversikt over dagen.</h2><p class="muted" id="greeting-copy"></p></div><div class="next-panel"><span class="type-dot" id="next-dot"></span><div><p class="eyebrow">Neste hendelse</p><h3 id="next-title">Ingen kommende hendelser</h3><p class="muted" id="next-meta"></p><strong id="next-countdown"></strong></div></div></div>
+      <form id="quick-todo-form" class="quick-todo card"><span>✓</span><input id="quick-todo-title" aria-label="Nytt gjøremål" placeholder="Hva må du gjøre i dag?" autocomplete="off" required><select id="quick-todo-category" aria-label="Kategori"><option value="private">Privat</option><option value="school">Skole</option><option value="work">Jobb</option><option value="training">Trening</option><option value="other">Annet</option></select><button class="primary">Legg til</button></form>
+      <div class="summary-grid"><article class="stat-card card"><span class="stat-icon school">▤</span><div><p>Neste eksamen</p><strong id="dash-exam">Ingen</strong><small id="dash-exam-meta"></small></div></article><article class="stat-card card"><span class="stat-icon work">▣</span><div><p>Neste jobbvakt</p><strong id="dash-shift">Ingen</strong><small id="dash-shift-meta"></small></div></article><article class="stat-card card"><span class="stat-icon training">◆</span><div><p>Neste trening</p><strong id="dash-training">Ingen</strong><small id="dash-training-meta"></small></div></article><article class="stat-card card"><span class="stat-icon event">○</span><div><p>Neste arrangement</p><strong id="dash-event">Ingen</strong><small id="dash-event-meta"></small></div></article></div>
+      <div class="dashboard-grid">
+        <article class="card span-2"><div class="card-head"><div><p class="eyebrow">Dagens plan</p><h2>I dag</h2></div><button class="secondary" data-view-jump="calendar">Se kalender</button></div><div id="today-timeline" class="timeline"></div></article>
+        <article class="card"><div class="card-head"><div><p class="eyebrow">Fokus</p><h2>Må gjøres</h2></div><button class="text-btn" data-open="todo">+ Ny</button></div><div id="dashboard-todos" class="todo-list compact"></div></article>
+        <article class="card"><div class="card-head"><div><p class="eyebrow">Planlegg fremover</p><h2>Kommer snart</h2></div></div><div id="coming-soon" class="mini-list"></div></article>
+        <article class="card span-2"><div class="card-head"><div><p class="eyebrow" id="week-number">Denne uken</p><h2>Ukeoversikt</h2></div></div><div id="week-summary" class="week-summary"></div></article>
       </div>
     </section>
 
-    <section id="schedule" class="view">
-      <div class="card">
-        <div class="card-head">
-          <div>
-            <p class="eyebrow">Undervisning</p>
-            <h2>Timeplan</h2>
-          </div>
-          <button class="primary" id="add-class-btn">+ Ny undervisning</button>
-        </div>
-        <div class="schedule-toolbar">
-          <button class="secondary schedule-nav" id="previous-week" aria-label="Forrige uke">←</button>
-          <button class="secondary" id="current-week">Denne uken</button>
-          <strong id="schedule-week-label"></strong>
-          <button class="secondary schedule-nav" id="next-week" aria-label="Neste uke">→</button>
-        </div>
-        <div id="schedule-grid" class="schedule-grid"></div>
-      </div>
-    </section>
-
-    <section id="subjects" class="view">
-      <div class="card">
-        <div class="card-head">
-          <div>
-            <p class="eyebrow">Semester</p>
-            <h2>Fag</h2>
-          </div>
-          <button class="primary" id="add-subject-btn">+ Nytt fag</button>
-        </div>
-        <div id="subject-grid" class="subject-grid"></div>
-      </div>
-    </section>
-
-    <section id="deadlines" class="view">
-      <div class="card">
-        <div class="card-head">
-          <div>
-            <p class="eyebrow">Arbeidskrav og innleveringer</p>
-            <h2>Frister</h2>
-          </div>
-          <button class="primary" id="add-deadline-btn">+ Ny frist</button>
-        </div>
-        <div id="deadline-list" class="event-list"></div>
-      </div>
-    </section>
-
-    <section id="exams" class="view">
-      <div class="card">
-        <div class="card-head">
-          <div>
-            <p class="eyebrow">Vurdering</p>
-            <h2>Eksamener</h2>
-          </div>
-          <button class="primary" id="add-exam-btn">+ Ny eksamen</button>
-        </div>
-        <div id="exam-list" class="event-list"></div>
-      </div>
-    </section>
+    <section id="calendar" class="view"><article class="card"><div class="card-head wrap"><div><p class="eyebrow">Alt på ett sted</p><h2>Kalender</h2></div><div class="actions"><button class="secondary" id="calendar-today">I dag</button><div class="segmented"><button class="active" data-calendar-mode="week">Uke</button><button data-calendar-mode="month">Måned</button></div><button class="primary" data-open="event">+ Hendelse</button></div></div><div class="calendar-filters" id="calendar-filters"></div><div class="calendar-toolbar"><button class="icon-btn" id="calendar-prev" aria-label="Forrige">←</button><h3 id="calendar-label"></h3><button class="icon-btn" id="calendar-next" aria-label="Neste">→</button></div><div id="calendar-content"></div></article></section>
+    <section id="todos" class="view"><article class="card"><div class="card-head"><div><p class="eyebrow">Alt du må huske</p><h2>Gjøremål</h2></div><button class="primary" data-open="todo">+ Nytt gjøremål</button></div><div class="todo-filters" id="todo-filters"></div><div id="todo-sections"></div></article></section>
+    <section id="study" class="view"><div id="study-overview"><div class="section-actions"><a class="secondary link-button" href="https://cloud.timeedit.net/hvl/web/studenthau/riqYZy470gvZ57QZQ285701Q6Q166XQYq1261Z0Q60o3oY6.html" target="_blank" rel="noopener">Åpne TimeEdit ↗</a><button class="primary" data-open="study">+ Studiehendelse</button></div><div id="subject-grid" class="subject-grid"></div><div class="content-grid"><article class="card"><div class="card-head"><div><p class="eyebrow">Undervisning</p><h2>Neste forelesninger</h2></div></div><div id="study-classes" class="event-list"></div></article><article class="card"><div class="card-head"><div><p class="eyebrow">Vurdering</p><h2>Frister og eksamener</h2></div></div><div id="study-deadlines" class="event-list"></div></article></div></div><div id="subject-detail" hidden><button class="secondary subject-back" id="subject-back">← Tilbake til alle fag</button><div id="subject-detail-content"></div></div></section>
+    <section id="work" class="view"><div class="summary-grid three"><article class="metric card"><p>Timer denne måneden</p><strong id="work-hours">0 t</strong></article><article class="metric card"><p>Antall vakter</p><strong id="work-shifts">0</strong></article><article class="metric card"><p>Estimert lønn</p><strong id="work-pay">0 kr</strong></article></div><article class="card"><div class="card-head"><div><p class="eyebrow">Arbeidsplan</p><h2>Jobbvakter</h2></div><button class="primary" data-open="shift">+ Legg til vakt</button></div><div id="work-list" class="event-list"></div></article></section>
+    <section id="training" class="view"><div class="summary-grid three"><article class="metric card"><p>Neste trening</p><strong id="training-next">Ingen</strong><small id="training-next-meta" class="muted"></small></article><article class="metric card"><p>Denne måneden</p><strong id="training-month-count">0</strong><small class="muted">treninger</small></article><article class="metric card"><p>Planlagt tid</p><strong id="training-month-hours">0 t</strong><small class="muted">denne måneden</small></article></div><article class="card"><div class="card-head"><div><p class="eyebrow">Aktivitet</p><h2>Treningsplan</h2></div><button class="primary" data-open="training">+ Legg til trening</button></div><div id="training-list" class="training-groups"></div></article></section>
+    <section id="events" class="view"><article class="card"><div class="card-head"><div><p class="eyebrow">Avtaler og opplevelser</p><h2>Arrangementer</h2></div><button class="primary" data-open="event">+ Nytt arrangement</button></div><div id="events-list" class="event-list"></div></article></section>
   </main>
 
-  <dialog id="item-dialog">
-    <form method="dialog" id="item-form">
-      <h2 id="dialog-title">Legg til</h2>
-      <input type="hidden" id="item-type" />
-      <label>Tittel
-        <input id="item-title" required placeholder="F.eks. Presentasjon" />
-      </label>
-      <label>Fag
-        <select id="item-subject"></select>
-      </label>
-      <label>Dato og tid
-        <input id="item-date" type="datetime-local" required />
-      </label>
-      <label id="location-wrap">Rom / sted
-        <input id="item-location" placeholder="F.eks. C201" />
-      </label>
-      <div class="dialog-actions">
-        <button value="cancel" class="secondary">Avbryt</button>
-        <button value="default" class="primary" id="save-item">Lagre</button>
-      </div>
-    </form>
-  </dialog>
-
-  <dialog id="subject-dialog">
-    <form method="dialog" id="subject-form">
-      <h2>Nytt fag</h2>
-      <label>Fagkode
-        <input id="subject-code" required placeholder="F.eks. MSB104" />
-      </label>
-      <label>Fagnavn
-        <input id="subject-name" required placeholder="F.eks. Økonometri" />
-      </label>
-      <div class="dialog-actions">
-        <button value="cancel" class="secondary">Avbryt</button>
-        <button value="default" class="primary" id="save-subject">Lagre</button>
-      </div>
-    </form>
-  </dialog>
-
-  <script src="app.js"></script>
+  <dialog id="entry-dialog"><form id="entry-form"><div class="dialog-head"><div><p class="eyebrow">Ny kalenderoppføring</p><h2 id="entry-dialog-title">Ny hendelse</h2></div><button type="button" class="close-btn" data-close="entry-dialog">×</button></div><label>Type<select id="entry-type"><option value="private">Privat</option><option value="shift">Jobbvakt</option><option value="training">Trening</option><option value="event">Arrangement</option><option value="class">Undervisning</option><option value="deadline">Innlevering / frist</option><option value="exam">Eksamen</option></select></label><label>Tittel<input id="entry-title" required placeholder="Hva skjer?"></label><label id="entry-subject-wrap">Fag<select id="entry-subject"></select></label><div class="form-grid"><label>Starter<input id="entry-start" type="datetime-local" required></label><label>Slutter<input id="entry-end" type="datetime-local"></label></div><label>Sted<input id="entry-location" placeholder="Rom, hall eller adresse"></label><label>Kommentar<textarea id="entry-note" rows="3" placeholder="Valgfri kommentar"></textarea></label><label id="repeat-wrap" class="check-row"><input id="entry-repeat" type="checkbox"> Gjenta ukentlig i 12 uker</label><div class="dialog-actions"><button type="button" class="secondary" data-close="entry-dialog">Avbryt</button><button class="primary">Lagre</button></div></form></dialog>
+  <dialog id="todo-dialog"><form id="todo-form"><div class="dialog-head"><div><p class="eyebrow">Ny oppgave</p><h2>Nytt gjøremål</h2></div><button type="button" class="close-btn" data-close="todo-dialog">×</button></div><label>Tittel<input id="todo-title" required placeholder="Hva må gjøres?"></label><div class="form-grid"><label>Kategori<select id="todo-category"><option value="school">Skole</option><option value="work">Jobb</option><option value="private">Privat</option><option value="training">Trening</option><option value="other">Annet</option></select></label><label>Prioritet<select id="todo-priority"><option value="medium">Normal</option><option value="high">Høy</option><option value="low">Lav</option></select></label></div><label id="todo-subject-wrap">Fag (valgfritt)<select id="todo-subject"><option value="">Generelt skolearbeid</option></select></label><div class="form-grid"><label>Dato (valgfritt)<input id="todo-due-date" type="date"></label><label>Klokkeslett (valgfritt)<input id="todo-due-time" type="time"></label></div><p class="form-help">Du kan velge bare dato. Klokkeslett er ikke nødvendig.</p><div class="dialog-actions"><button type="button" class="secondary" data-close="todo-dialog">Avbryt</button><button class="primary">Lagre</button></div></form></dialog>
+  <dialog id="event-detail-dialog"><div class="event-detail-shell"><div class="dialog-head"><div><p class="eyebrow" id="detail-type">Hendelse</p><h2 id="detail-title"></h2></div><button type="button" class="close-btn" data-close="event-detail-dialog">×</button></div><div id="event-detail-content" class="detail-grid"></div><div class="dialog-actions"><button type="button" class="secondary" data-close="event-detail-dialog">Lukk</button></div></div></dialog>
+  <dialog id="settings-dialog"><form id="settings-form"><div class="dialog-head"><div><p class="eyebrow">Tilpass</p><h2>Innstillinger</h2></div><button type="button" class="close-btn" data-close="settings-dialog">×</button></div><label>Timelønn (kr)<input id="hourly-wage" type="number" min="0" step="1" placeholder="F.eks. 220"></label><div class="cloud-settings"><div><p class="eyebrow">Synkronisering</p><h3>Supabase-sky</h3></div><p id="cloud-status" class="cloud-status">Ikke konfigurert – dataene er fortsatt trygge lokalt.</p><label>Prosjektadresse<input id="supabase-url" type="url" value="https://pmgsmftbwvcjpoqpmqan.supabase.co" autocomplete="off" placeholder="https://…supabase.co"></label><label>Publishable key<input id="supabase-key" type="password" autocomplete="off" placeholder="sb_publishable_… eller anon key"></label><label>E-post for innlogging<input id="sync-email" type="email" autocomplete="email" placeholder="navn@eksempel.no"></label><div class="cloud-actions"><button type="button" class="secondary" id="cloud-login">Send innloggingslenke</button><button type="button" class="secondary" id="cloud-logout" hidden>Logg ut</button></div><p class="form-help">Nøkkelen lagres bare i denne nettleseren, aldri i GitHub. Ved første innlogging lastes dine eksisterende lokale data opp dersom skyen er tom.</p></div><div class="dialog-actions"><button type="button" class="secondary" data-close="settings-dialog">Avbryt</button><button class="primary">Lagre</button></div></form></dialog>
+  <div id="toast" role="status" aria-live="polite"></div><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script><script src="app.js?v=20260826-4"></script><script src="cloud-sync.js?v=20260826-1"></script><script src="pwa.js?v=20260826-1"></script>
 </body>
 </html>
