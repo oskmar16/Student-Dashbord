@@ -11,7 +11,7 @@
 
   function showConfiguration(){const config=readConfig();el("supabase-url").value=config.url||DEFAULT_URL;el("supabase-key").value=config.key||"";updateAuthUi();}
   function saveConfiguration(){const config={url:el("supabase-url").value.trim(),key:el("supabase-key").value.trim()};if(config.key)localStorage.setItem(CONFIG_KEY,JSON.stringify(config));else localStorage.removeItem(CONFIG_KEY);initialize();}
-  function updateAuthUi(){el("cloud-logout").hidden=!user;el("cloud-login").hidden=Boolean(user);if(user)status(`Tilkoblet som ${user.email||"innlogget bruker"}`,"online");else if(validConfig(readConfig()))status("Klar for innlogging. Data lagres lokalt frem til du logger inn.");else status("Ikke konfigurert – dataene er fortsatt trygge lokalt.");}
+  function updateAuthUi(){el("cloud-logout").hidden=!user;el("cloud-set-password").hidden=!user;el("cloud-login").hidden=Boolean(user);if(user){el("sync-email").value=user.email||el("sync-email").value;status(`Tilkoblet som ${user.email||"innlogget bruker"}`,"online");}else if(validConfig(readConfig()))status("Klar for innlogging med e-post og passord.");else status("Ikke konfigurert – dataene er fortsatt trygge lokalt.");}
 
   async function initialize(){
     const config=readConfig();
@@ -48,17 +48,18 @@
   function schedule(){if(!client||!user||applyingRemote)return;clearTimeout(saveTimer);saveTimer=setTimeout(pushNow,600);}
 
   async function login(){
-    saveConfiguration();const email=el("sync-email").value.trim();
+    saveConfiguration();const email=el("sync-email").value.trim(),password=el("sync-password").value;
     if(!validConfig(readConfig())){status("Lim inn prosjektadresse og publishable key først.","error");return;}
     if(!email){status("Skriv inn e-postadressen din.","error");return;}
+    if(password.length<6){status("Passordet må ha minst 6 tegn.","error");return;}
     if(!client)await initialize();
-    const redirectTo=location.protocol.startsWith("http")?`${location.origin}${location.pathname}`:undefined;
-    const {error}=await client.auth.signInWithOtp({email,options:{emailRedirectTo:redirectTo,shouldCreateUser:true}});
-    if(error)status(`Innlogging feilet: ${error.message}`,"error");else status("Innloggingslenken er sendt. Åpne den på denne enheten.","online");
+    const {error}=await client.auth.signInWithPassword({email,password});
+    if(error)status(`Innlogging feilet: ${error.message}`,"error");else{el("sync-password").value="";status("Innlogget. Synkroniserer…","online");}
   }
+  async function setPassword(){const password=el("sync-password").value;if(!client||!user){status("Du må være innlogget for å sette passord.","error");return;}if(password.length<6){status("Passordet må ha minst 6 tegn.","error");return;}const {error}=await client.auth.updateUser({password});if(error)status(`Kunne ikke lagre passordet: ${error.message}`,"error");else{el("sync-password").value="";status("Passordet er lagret. Du kan nå logge inn på telefonen.","online");}}
   async function logout(){if(client)await client.auth.signOut();user=null;updateAuthUi();}
 
   window.cloudDashboard={schedule,showConfiguration,saveConfiguration,pushNow};
-  el("cloud-login").addEventListener("click",login);el("cloud-logout").addEventListener("click",logout);
+  el("cloud-login").addEventListener("click",login);el("cloud-set-password").addEventListener("click",setPassword);el("cloud-logout").addEventListener("click",logout);
   initialize().catch(error=>status(`Synkronisering feilet: ${error.message}`,"error"));
 })();
