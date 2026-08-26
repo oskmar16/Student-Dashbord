@@ -6,6 +6,9 @@ create table if not exists public.dashboard_state (
 
 alter table public.dashboard_state enable row level security;
 
+grant usage on schema public to authenticated;
+grant select, insert, update, delete on table public.dashboard_state to authenticated;
+
 create policy "Users can read own dashboard"
 on public.dashboard_state for select
 to authenticated
