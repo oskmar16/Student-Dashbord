@@ -152,6 +152,14 @@ function renderWeekCalendar(){
   const start=startOfWeek(calendarDate),end=endOfWeek(start),names=["Man","Tir","Ons","Tor","Fre","Lør","Søn"],items=filteredCalendarItems(start,end);
   document.getElementById("calendar-label").textContent=`${formatDate(start,{day:"numeric",month:"short"})} - ${formatDate(new Date(end-1),{day:"numeric",month:"short",year:"numeric"})}`;
   document.getElementById("calendar-content").innerHTML=`<div class="week-calendar">${names.map((name,index)=>{const d=new Date(start);d.setDate(d.getDate()+index);const n=new Date(d);n.setDate(n.getDate()+1);const list=items.filter(i=>overlaps(i,d,n));return `<div class="calendar-day ${d.toDateString()===new Date().toDateString()?"today":""}"><div class="calendar-day-head"><span>${name}</span><strong>${d.getDate()}</strong></div><div class="day-events">${list.map(i=>calendarEvent(i,d,n)).join("")}</div></div>`;}).join("")}</div>`;
+  requestAnimationFrame(()=>centerTodayInMobileCalendar("auto"));
+}
+function centerTodayInMobileCalendar(behavior="smooth"){
+  if(window.innerWidth>720)return;
+  const calendar=document.querySelector(".week-calendar"),today=calendar?.querySelector(".calendar-day.today");
+  if(!calendar||!today||!calendar.clientWidth)return;
+  const left=today.offsetLeft-(calendar.clientWidth-today.offsetWidth)/2;
+  calendar.scrollTo({left:Math.max(0,left),behavior});
 }
 function renderMonthCalendar(){
   const first=new Date(calendarDate.getFullYear(),calendarDate.getMonth(),1),gridStart=startOfWeek(first),gridEnd=new Date(gridStart);gridEnd.setDate(gridEnd.getDate()+42);const items=filteredCalendarItems(gridStart,gridEnd),names=["Man","Tir","Ons","Tor","Fre","Lør","Søn"];
@@ -219,7 +227,7 @@ function openEventDetail(id){
   document.getElementById("event-detail-dialog").showModal();
 }
 function closeMobileMenu(){document.querySelector(".sidebar").classList.remove("mobile-open");document.getElementById("mobile-menu-btn").setAttribute("aria-expanded","false");document.getElementById("mobile-menu-backdrop").hidden=true;}
-function switchView(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));document.querySelectorAll(".nav-btn[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===id));document.getElementById("page-title").textContent=VIEW_TITLES[id]||"Min hverdag";closeMobileMenu();window.scrollTo({top:0,behavior:"smooth"});}
+function switchView(id){document.querySelectorAll(".view").forEach(v=>v.classList.toggle("active",v.id===id));document.querySelectorAll(".nav-btn[data-view]").forEach(b=>b.classList.toggle("active",b.dataset.view===id));document.getElementById("page-title").textContent=VIEW_TITLES[id]||"Min hverdag";closeMobileMenu();window.scrollTo({top:0,behavior:"smooth"});if(id==="calendar")setTimeout(()=>centerTodayInMobileCalendar(),80);}
 document.querySelectorAll(".nav-btn[data-view]").forEach(btn=>btn.onclick=()=>switchView(btn.dataset.view));
 document.getElementById("mobile-menu-btn").onclick=()=>{const sidebar=document.querySelector(".sidebar"),open=sidebar.classList.toggle("mobile-open");document.getElementById("mobile-menu-btn").setAttribute("aria-expanded",String(open));document.getElementById("mobile-menu-backdrop").hidden=!open;};
 document.getElementById("mobile-menu-backdrop").onclick=closeMobileMenu;
