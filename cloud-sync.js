@@ -11,7 +11,7 @@
 
   function showConfiguration(){const config=readConfig();el("supabase-url").value=config.url||DEFAULT_URL;el("supabase-key").value=config.key||"";updateAuthUi();}
   function saveConfiguration(){const config={url:el("supabase-url").value.trim(),key:el("supabase-key").value.trim()};if(config.key)localStorage.setItem(CONFIG_KEY,JSON.stringify(config));else localStorage.removeItem(CONFIG_KEY);initialize();}
-  function updateAuthUi(){el("cloud-logout").hidden=!user;el("cloud-set-password").hidden=!user;el("cloud-login").hidden=Boolean(user);if(user){el("sync-email").value=user.email||el("sync-email").value;status(`Tilkoblet som ${user.email||"innlogget bruker"}`,"online");}else if(validConfig(readConfig()))status("Klar for innlogging med e-post og passord.");else status("Ikke konfigurert – dataene er fortsatt trygge lokalt.");}
+  function updateAuthUi(){el("cloud-logout").hidden=!user;el("cloud-sync-now").hidden=!user;el("cloud-set-password").hidden=!user;el("cloud-login").hidden=Boolean(user);if(user){el("sync-email").value=user.email||el("sync-email").value;status(`Tilkoblet som ${user.email||"innlogget bruker"}`,"online");}else if(validConfig(readConfig()))status("Klar for innlogging med e-post og passord.");else status("Ikke konfigurert – dataene er fortsatt trygge lokalt.");}
 
   async function initialize(){
     const config=readConfig();
@@ -28,7 +28,7 @@
     status("Synkroniserer…","online");
     const {data:row,error}=await client.from("dashboard_state").select("payload,updated_at").eq("user_id",user.id).maybeSingle();
     if(error){status(`Kunne ikke synkronisere: ${error.message}`,"error");return;}
-    if(row?.payload){applyingRemote=true;window.applyCloudDashboard(row.payload);applyingRemote=false;status("Synkronisert med Supabase","online");}
+    if(row?.payload){applyingRemote=true;window.applyCloudDashboard(row.payload);applyingRemote=false;await pushNow();}
     else await pushNow();
     subscribe();
   }
@@ -60,6 +60,6 @@
   async function logout(){if(client)await client.auth.signOut();user=null;updateAuthUi();}
 
   window.cloudDashboard={schedule,showConfiguration,saveConfiguration,pushNow};
-  el("cloud-login").addEventListener("click",login);el("cloud-set-password").addEventListener("click",setPassword);el("cloud-logout").addEventListener("click",logout);
+  el("cloud-login").addEventListener("click",login);el("cloud-sync-now").addEventListener("click",pushNow);el("cloud-set-password").addEventListener("click",setPassword);el("cloud-logout").addEventListener("click",logout);
   initialize().catch(error=>status(`Synkronisering feilet: ${error.message}`,"error"));
 })();
