@@ -57,6 +57,7 @@ let todoFilter="all";
 let selectedSubjectId=null;
 let subjectDetailTab="todos";
 let todayPlanIndex=0;
+let heroPlanAnimating=false;
 persist();
 
 const LABELS={school:"Skole",work:"Jobb",training:"Trening",event:"Arrangement",private:"Privat",other:"Annet",class:"Undervisning",deadline:"Frist",exam:"Eksamen",shift:"Jobbvakt"};
@@ -99,13 +100,18 @@ function todoRow(todo,removable=true){
 function renderDashboard(){
   const now=new Date(),todayStart=startOfDay(now),tomorrow=new Date(todayStart);tomorrow.setDate(tomorrow.getDate()+1);
   const todayItems=data.items.filter(i=>overlaps(i,todayStart,tomorrow)).sort((a,b)=>toDate(a.date)-toDate(b.date));
-  const next=upcoming()[0];
+  todayPlanIndex=todayItems.length?Math.min(todayPlanIndex,todayItems.length-1):0;
+  const next=todayItems[todayPlanIndex]||upcoming()[0],hour=now.getHours();
+  document.getElementById("greeting-label").textContent=hour<10?"God morgen":hour<18?"God dag":"God kveld";
   document.getElementById("greeting-title").textContent=todayItems.length?`Du har ${todayItems.length} ${todayItems.length===1?"ting":"ting"} på planen i dag.`:"Dagen er åpen.";
   document.getElementById("greeting-copy").textContent=todayItems.length?"Her er det viktigste, samlet på ett sted.":"Legg til et gjøremål eller bruk kalenderen til å planlegge.";
+  document.getElementById("next-kicker").textContent=todayItems.length?"På planen i dag":"Neste hendelse";
   document.getElementById("next-title").textContent=next?next.title:"Ingen kommende hendelser";
-  document.getElementById("next-meta").textContent=next?`${LABELS[categoryOf(next)]} · ${formatDate(next.date,{weekday:"long",day:"numeric",month:"long"})} · ${formatRange(next)}`:"";
-  document.getElementById("next-countdown").textContent=next?countdown(next.date):"";
+  document.getElementById("next-meta").textContent=next?`${LABELS[categoryOf(next)]} · ${formatDateSpan(next)} · ${formatRange(next)}`:"";
+  document.getElementById("next-countdown").textContent=next?(todayItems.length?`${todayPlanIndex+1} av ${todayItems.length}`:countdown(next.date)):"";
   document.getElementById("next-dot").style.background=next?`var(--${categoryOf(next)})`:"var(--private)";
+  document.getElementById("hero-plan-nav").hidden=todayItems.length<2;
+  document.getElementById("hero-plan-count").textContent=todayItems.length?`${todayPlanIndex+1}/${todayItems.length}`:"";
   const setStat=(type,titleId,metaId,labelFn)=>{
     const item=upcoming(type)[0];document.getElementById(titleId).textContent=item?labelFn(item):"Ingen";document.getElementById(metaId).textContent=item?`${formatDate(item.date)} · ${countdown(item.date)}`:"Ikke registrert";
   };
@@ -113,7 +119,7 @@ function renderDashboard(){
   setStat("shift","dash-shift","dash-shift-meta",x=>x.title);
   setStat("training","dash-training","dash-training-meta",x=>x.title);
   setStat("event","dash-event","dash-event-meta",x=>x.title);
-  if(todayItems.length){todayPlanIndex=Math.min(todayPlanIndex,todayItems.length-1);const item=todayItems[todayPlanIndex],subject=item.subject?subjectById(item.subject):null,startedEarlier=toDate(item.date)<todayStart,time=startedEarlier?`Pågår · til ${item.endDate?formatTime(item.endDate):"i dag"}`:formatRange(item);document.getElementById("today-timeline").innerHTML=`<div class="today-carousel"><button class="today-arrow" data-today-prev aria-label="Forrige hendelse" ${todayItems.length===1?"disabled":""}>←</button><button class="today-slide type-${item.type}" data-view-event="${esc(item.id)}" aria-label="Åpne detaljer for ${esc(item.title)}"><span class="today-slide-icon">${ICONS[categoryOf(item)]||"·"}</span><div><small>${esc(subject?subject.code:LABELS[categoryOf(item)])}</small><strong>${esc(item.title)}</strong><span>${esc(time)}${item.location?` · ${esc(item.location)}`:""}</span></div></button><button class="today-arrow" data-today-next aria-label="Neste hendelse" ${todayItems.length===1?"disabled":""}>→</button></div><div class="today-carousel-footer"><div class="today-dots">${todayItems.map((_,index)=>`<button class="${index===todayPlanIndex?"active":""}" data-today-index="${index}" aria-label="Vis hendelse ${index+1}"></button>`).join("")}</div><span>${todayPlanIndex+1} av ${todayItems.length}</span></div>`;}else{todayPlanIndex=0;document.getElementById("today-timeline").innerHTML=empty("Ingen hendelser i dag.");}
+  document.getElementById("today-timeline").innerHTML=todayItems.length?todayItems.map(i=>`<div class="timeline-item"><time>${toDate(i.date)<todayStart?"Pågår":formatTime(i.date)}</time><span class="timeline-line type-${i.type}"></span><div><strong>${esc(i.title)}</strong><small>${esc(i.subject?subjectById(i.subject).code:LABELS[categoryOf(i)])}${i.location?` · ${esc(i.location)}`:""}</small></div></div>`).join(""):empty("Ingen hendelser i dag.");
   const activeTodos=data.todos.filter(t=>!t.done).sort(todoSort);
   document.getElementById("dashboard-todos").innerHTML=activeTodos.length?activeTodos.slice(0,5).map(t=>todoRow(t,false)).join(""):empty("Du har ingen åpne gjøremål.");
   const soon=data.items.filter(i=>toDate(i.date)>=now&&["deadline","event","exam"].includes(i.type)).sort((a,b)=>toDate(a.date)-toDate(b.date)).slice(0,5);
@@ -204,9 +210,6 @@ function bindDynamicActions(){
   document.querySelectorAll("[data-subject-id]").forEach(card=>{card.onclick=()=>{subjectDetailTab="todos";renderSubjectDetail(card.dataset.subjectId);bindDynamicActions();};card.onkeydown=e=>{if(e.key==="Enter"||e.key===" "){e.preventDefault();card.click();}};});
   document.querySelectorAll("[data-add-subject-todo]").forEach(btn=>btn.onclick=()=>openTodoDialog(btn.dataset.addSubjectTodo));
   document.querySelectorAll("[data-subject-tab]").forEach(btn=>btn.onclick=()=>{subjectDetailTab=btn.dataset.subjectTab;renderSubjectDetail(selectedSubjectId);bindDynamicActions();});
-  document.querySelectorAll("[data-today-prev]").forEach(btn=>btn.onclick=()=>{const count=data.items.filter(i=>overlaps(i,startOfDay(new Date()),new Date(startOfDay(new Date()).getTime()+86400000))).length;todayPlanIndex=(todayPlanIndex-1+count)%count;renderDashboard();bindDynamicActions();});
-  document.querySelectorAll("[data-today-next]").forEach(btn=>btn.onclick=()=>{const count=data.items.filter(i=>overlaps(i,startOfDay(new Date()),new Date(startOfDay(new Date()).getTime()+86400000))).length;todayPlanIndex=(todayPlanIndex+1)%count;renderDashboard();bindDynamicActions();});
-  document.querySelectorAll("[data-today-index]").forEach(btn=>btn.onclick=()=>{todayPlanIndex=Number(btn.dataset.todayIndex)||0;renderDashboard();bindDynamicActions();});
 }
 function openEventDetail(id){
   const item=data.items.find(x=>x.id===id);if(!item)return;const subject=item.subject?subjectById(item.subject):null;
@@ -220,6 +223,15 @@ function switchView(id){document.querySelectorAll(".view").forEach(v=>v.classLis
 document.querySelectorAll(".nav-btn[data-view]").forEach(btn=>btn.onclick=()=>switchView(btn.dataset.view));
 document.getElementById("mobile-menu-btn").onclick=()=>{const sidebar=document.querySelector(".sidebar"),open=sidebar.classList.toggle("mobile-open");document.getElementById("mobile-menu-btn").setAttribute("aria-expanded",String(open));document.getElementById("mobile-menu-backdrop").hidden=!open;};
 document.getElementById("mobile-menu-backdrop").onclick=closeMobileMenu;
+function cycleHeroPlan(direction){
+  const start=startOfDay(new Date()),end=new Date(start);end.setDate(end.getDate()+1);
+  const count=data.items.filter(i=>overlaps(i,start,end)).length,panel=document.querySelector(".next-panel-content");
+  if(count<2||heroPlanAnimating)return;
+  heroPlanAnimating=true;panel.classList.add(direction>0?"hero-slide-out-left":"hero-slide-out-right");
+  setTimeout(()=>{todayPlanIndex=(todayPlanIndex+direction+count)%count;renderDashboard();panel.className="next-panel-content";panel.classList.add(direction>0?"hero-slide-in-right":"hero-slide-in-left");setTimeout(()=>{panel.className="next-panel-content";heroPlanAnimating=false;},260);},150);
+}
+document.getElementById("hero-plan-prev").onclick=()=>cycleHeroPlan(-1);
+document.getElementById("hero-plan-next").onclick=()=>cycleHeroPlan(1);
 document.querySelectorAll("[data-view-jump]").forEach(btn=>btn.onclick=()=>switchView(btn.dataset.viewJump));
 document.querySelectorAll("[data-open]").forEach(btn=>btn.onclick=()=>openFor(btn.dataset.open));
 document.querySelectorAll("[data-close]").forEach(btn=>btn.onclick=()=>document.getElementById(btn.dataset.close).close());
