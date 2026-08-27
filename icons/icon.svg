@@ -1,0 +1,20 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Min hverdag">
+  <defs>
+    <linearGradient id="background" x1="72" y1="54" x2="440" y2="458" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#6667E3"/>
+      <stop offset="0.52" stop-color="#6A5FD5"/>
+      <stop offset="1" stop-color="#E96987"/>
+    </linearGradient>
+    <radialGradient id="glow" cx="0" cy="0" r="1" gradientTransform="translate(406 92) rotate(132) scale(278)" gradientUnits="userSpaceOnUse">
+      <stop stop-color="#FFFFFF" stop-opacity="0.3"/>
+      <stop offset="1" stop-color="#FFFFFF" stop-opacity="0"/>
+    </radialGradient>
+    <filter id="shadow" x="74" y="100" width="364" height="320" filterUnits="userSpaceOnUse">
+      <feDropShadow dx="0" dy="14" stdDeviation="12" flood-color="#27276F" flood-opacity="0.28"/>
+    </filter>
+  </defs>
+  <rect width="512" height="512" rx="116" fill="url(#background)"/>
+  <rect width="512" height="512" rx="116" fill="url(#glow)"/>
+  <circle cx="78" cy="438" r="150" fill="#35369C" opacity="0.12"/>
+  <path d="M132 358V154L256 286L380 154V358" fill="none" stroke="#FFFFFF" stroke-width="48" stroke-linecap="round" stroke-linejoin="round" filter="url(#shadow)"/>
+</svg>
