@@ -1,6 +1,7 @@
 {
   "name": "Min hverdag - personlig dashboard",
   "short_name": "Min hverdag",
+  "id": "./?app=min-hverdag",
   "description": "Samlet oversikt over studie, jobb, trening, arrangementer og gjøremål.",
   "start_url": "./",
   "scope": "./",
@@ -9,7 +10,7 @@
   "theme_color": "#182547",
   "orientation": "any",
   "icons": [
-    {"src":"icons/icon-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
-    {"src":"icons/icon-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
+    {"src":"icons/min-hverdag-192.png","sizes":"192x192","type":"image/png","purpose":"any maskable"},
+    {"src":"icons/min-hverdag-512.png","sizes":"512x512","type":"image/png","purpose":"any maskable"}
   ]
 }
